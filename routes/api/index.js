@@ -10,6 +10,8 @@ router.get('/', (req, res) => {
 // API routes
 router.use('/nodes', require('./nodes'))
 
+router.use('/types', require('./types'))
+
 router.use('/desks', require('./desks'))
 
 router.use('/edges', require('./edges'))

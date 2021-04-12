@@ -10,12 +10,12 @@ driver.onError = error => {
 
 
 module.exports = {
-    read: (cypher, database = config.neo4j.database) => {
+    read: (cypher, properties = {}, database = config.neo4j.database) => {
         const session = driver.session({
             defaultAccessMode: neo4j.session.READ
         })
 
-        return session.run(cypher)
+        return session.run(cypher, properties)
             .then(res => {
                 session.close()
                 return res
@@ -25,12 +25,12 @@ module.exports = {
                 throw e
             })
     },
-    write: (cypher, database = config.neo4j.database) => {
+    write: (cypher, properties = {}, database = config.neo4j.database) => {
         const session = driver.session({
             defaultAccessMode: neo4j.session.WRITE
         })
 
-        return session.run(cypher)
+        return session.run(cypher, properties)
             .then(res => {
                 session.close()
                 return res

@@ -1,14 +1,14 @@
 const router = require('express').Router();
 const jsonify = require('../../jsonifier')
-let nodeController = require('../../controllers/nodes/nodeController')
+let typeController = require('../../controllers/nodes/typeController')
 
 
 router.get('/', (req, res) => {
     let cypher = ''
 
     if (req.query.desk) {
-        cypher = `MATCH (d:Доска) WHERE id(d)=${req.query.desk} ` + 
-                 `MATCH (n) WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(d) RETURN n`
+        cypher = `MATCH (d:Доска) WHERE d.id=${req.query.desk} ` + 
+                 `MATCH (n:Тип) WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(d) RETURN n`
     } else {
         res.status(400).json({error: 'Укажите id доски'})
     }
@@ -19,23 +19,23 @@ router.get('/', (req, res) => {
             result.records.map(record => {
                 let node = jsonify(record.get('n'))
                 if (node) nodes.push(node)
-            })
+            }) 
             res.json(nodes)
-        })
-        .catch(e => {
+        }) 
+        .catch(e => {  
             //console.log(e)
             res.status(400).json({error: 'Что-то не так с запросом'})
         })
 })
 
 
-router.post('/', nodeController.post)
+router.post('/', typeController.post)
 
-router.get('/:id', nodeController.get)
+router.get('/:id', typeController.get)
 
-router.put('/:id', nodeController.put)
+router.put('/:id', typeController.put)
 
-router.delete('/:id', nodeController.delete)
+router.delete('/:id', typeController.delete)
 
 
 module.exports = router

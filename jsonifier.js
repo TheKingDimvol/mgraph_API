@@ -3,7 +3,7 @@ function jsonify(record, node = true) {
 
     try {
         for (key in properties) {
-            if (typeof(properties[key]) != 'string') {
+            if (properties[key].low) {
                 properties[key] = properties[key].low
             }
         }

@@ -5,10 +5,12 @@ const db = require('../../neo4j')
 router.get('/', (req, res) => {
     db.read("MATCH (n:Доска) RETURN n.title AS title, id(n) AS id")
         .then(desks => {
-            let table = [{'Название' : 'ID'}]
+            let table = []
             desks.records.map(desk => {
-                let obj = {}
-                obj[desk.get('title')] = desk.get('id').low
+                let obj = {
+                    'Название' : desk.get('title'),
+                    'id' : desk.get('id').low
+                    }
                 table.push(obj)
             })
             res.json(table)
