@@ -1,5 +1,5 @@
-function getNodeFunc() {
-    fetch("http://localhost:5000/api/nodes?desk=1057")
+function getEdgeFunc() {
+    fetch("http://localhost:5000/api/edges?desk=1057")
         .then(response => {
             return response.json()
         })
@@ -12,7 +12,7 @@ function getNodeFunc() {
         })
 }
 // Пример запроса, который добовляет одну вершину в список
-function postNodeFunc() {
+function postEdgeFunc() {
     fetch("http://localhost:5000/api/nodes", {
         method: 'POST',
         headers: {
@@ -43,7 +43,7 @@ function postNodeFunc() {
     })
 }
 
-function deleteNodeFunc() {
+function deleteEdgeFunc() {
     fetch("http://localhost:5000/api/nodes/gdffd", {
         method: 'DELETE'
     })
@@ -59,7 +59,7 @@ function deleteNodeFunc() {
     })
 }
 
-function putNodeFunc() {
+function putEdgeFunc() {
     fetch("http://localhost:5000/api/nodes/1162", {
         method: 'PUT',
         headers: {

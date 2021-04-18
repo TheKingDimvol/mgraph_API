@@ -26,6 +26,7 @@ exports.post = async (req, res) => {
     let community = 0
     let label = ''
 
+    // Нужна ли проверка на принадлежность Типа к доске?
     let checkForError = await req.neo4j.read(`MATCH (p) MATCH (n:Тип) WHERE n.id=${req.body.typeID} RETURN max(p.id) AS max, n.community, n.title`)
                             .then(result => {
                                 availableId = result.records[0].get('max').low

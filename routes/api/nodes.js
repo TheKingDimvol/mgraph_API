@@ -7,7 +7,7 @@ router.get('/', (req, res) => {
     let cypher = ''
 
     if (req.query.desk) {
-        cypher = `MATCH (d:Доска) WHERE id(d)=${req.query.desk} ` + 
+        cypher = `MATCH (d:Доска) WHERE d.id=${req.query.desk} ` + 
                  `MATCH (n) WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(d) RETURN n`
     } else {
         res.status(400).json({error: 'Укажите id доски'})

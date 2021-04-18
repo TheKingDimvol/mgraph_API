@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
         cypher = `MATCH (d:Доска) WHERE d.id=${req.query.desk} ` + 
                  `MATCH (n:Тип) WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(d) RETURN n`
     } else {
-        res.status(400).json({error: 'Укажите id доски'})
+        res.status(400).json({error: 'Укажите id доски(типологии)'})
     }
 
     req.neo4j.read(cypher)
