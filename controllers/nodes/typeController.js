@@ -3,45 +3,42 @@ const jsonify = require('../../jsonifier')
 
 exports.get = (req, res) => {
     req.neo4j.read(`MATCH (n:Тип) WHERE n.id=${req.params.id} RETURN n`)
-        .then(node => {
-            if (!node.records.length) {
+        .then(response => {
+            if (!response.records.length) {
                 res.status(400).json({error: 'Нет типа с id: ' + req.params.id})
                 return 
             }
 
-            let nodeJSON = jsonify(node.records[0].get('n'))
-            res.json(nodeJSON)
+            let node = jsonify(response.records[0].get('n'))
+            res.json(node)
         })
         .catch(e => {
-            console.log(e)
+            //console.log(e)
             res.status(400).json({error: e})
         })
 }
 
-exports.post = async (req, res) => {
-    let availableId = 0
+exports.post = (req, res) => {
+    // Берём все вершины
+    let cypher = `MATCH (all) `
 
-    let checkForError = await req.neo4j.read(`MATCH (p) RETURN max(p.id) AS max`)
-                            .then(result => {
-                                availableId = result.records[0].get('max')
-                            })
-                            .catch(error => {
-                                return error
-                            })
+    // Передаём максимальный id(max) дальше
+    cypher += `WITH max(all.id) AS max `
 
-    if (checkForError) {
-        res.status(400).json({error: checkForError})
-        return
-    }
+    // Выбираем типологию по id
+    cypher += `MATCH (typology:Доска {id:${req.body.typology}, type:"Типология"}) `
 
-    req.body.properties['id'] = availableId + 1
+    // Создаём тип с параметром id
+    cypher += `CREATE (type:Тип {id:max + 1}) `
 
-    let cypher = `MATCH (typology:Доска {id:${req.body.typology}, type:"Типология"}) `
-    cypher += `CREATE (node:Тип $properties) `
-    cypher += `CREATE (typology)-[:subsection {type:"СОДЕРЖИТ"}]->(node)`
+    // Добавляем параметры типа из запроса
+    cypher += `SET type+=$properties `
+
+    // Создаём связь типа и типологии
+    cypher += `CREATE (typology)-[:subsection {type:"СОДЕРЖИТ"}]->(type)`
 
     req.neo4j.write(cypher, {'properties': req.body.properties})
-        .then(nothing => {
+        .then(response => {
             res.status(200).end()
         })
         .catch(error => {
@@ -51,13 +48,21 @@ exports.post = async (req, res) => {
 }
 
 exports.put = (req, res) => {
-
+    // Нужна ли проверка на существование вершины???
+    req.neo4j.write(`MATCH (n) WHERE n.id=${req.params.id} SET n+=$properties`, {'properties': req.body})
+        .then(response => {
+            res.status(200).end()
+        })
+        .catch(e => {
+            //console.log(e)
+            res.status(400).json({error: 'Плохой запрос'})
+        })
 }
 
 exports.delete = (req, res) => {
     // Нужна ли проверка на существование типа???
     req.neo4j.write(`MATCH (n:Тип) WHERE n.id=${req.params.id} DETACH DELETE n`)
-        .then(nothing => {
+        .then(response => {
             res.status(200).end()
         })
         .catch(e => {

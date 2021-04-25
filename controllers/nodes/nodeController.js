@@ -5,18 +5,28 @@ exports.get = (req, res) => {
     const notNodes = ['Доска', 'Тип']
 
     req.neo4j.read(`MATCH (n) WHERE n.id=${req.params.id} RETURN n`)
-        .then(node => {
-            if (!node.records.length) {
-                res.status(400).json({error: 'Нет типа с id: ' + req.params.id})
+        .then(response => {
+            /*if (!response.records.length) {
+                res.status(400).json({error: 'Нет вершины с id: ' + req.params.id})
                 return 
+            }*/
+            switch (response.records.length) {
+                case 0: 
+                    res.status(400).json({error: 'Нет вершины с id: ' + req.params.id})
+                    return
+                case 1:
+                    break
+                default:
+                    res.status(500).json({error: 'В базе данных несколько вершин с id: ' + req.params.id})
+                    return
             }
 
-            let nodeJSON = jsonify(node.records[0].get('n'))
+            let node = jsonify(response.records[0].get('n'))
 
-            if (notNodes.includes(nodeJSON.label)) {
+            if (notNodes.includes(node.label)) {
                 res.status(400).json({error: 'Нет вершины с id: ' + req.params.id})
             } else {
-                res.json(nodeJSON)
+                res.json(node)
             }
         })
         .catch(e => {
@@ -26,35 +36,54 @@ exports.get = (req, res) => {
 }
 
 exports.post = async (req, res) => {
-    let availableId = 0
-    let community = 0
     let label = ''
 
-    // Нужна ли проверка на принадлежность Типа к доске?
-    let checkForError = await req.neo4j.read(`MATCH (p) MATCH (n:Тип) WHERE n.id=${req.body.type} RETURN max(p.id) AS max, n.community, n.title`)
-                            .then(result => {
-                                availableId = result.records[0].get('max')
-                                community = result.records[0].get('n.community').low
-                                label = '`' + result.records[0].get('n.title') + '`'
-                            })
-                            .catch(error => {
-                                return "Нет типа с id: " + req.body.type
-                            })
+    let checkForError = await req.neo4j
+        .read(`MATCH (type:Тип {id:${req.body.type}}) RETURN type.title AS title, type.community AS community`)
+        .then(response => {
+            switch (response.records.length) {
+                case 0: 
+                    return 'Нет типа с id: ' + req.body.type
+                case 1:
+                    break
+                default:
+                    return 'В базе данных несколько типов с id: ' + req.body.type
+            }
+
+            label = response.records[0].get('title')
+            req.body.properties['community'] = response.records[0].get('community')
+        })
+        .catch(error => {
+            return error
+        })
 
     if (checkForError) {
+        //console.log(checkForError)
         res.status(400).json({error: checkForError})
         return
     }
 
-    req.body.properties['id'] = availableId + 1
-    req.body.properties['community'] = community
 
-    let cypher = `MATCH (desk:Доска {id:${req.body.desk}}) `
-    cypher += `CREATE (node:${label} $properties) `
+    // Берём все вершины и находим тип по id
+    let cypher = `MATCH (all) MATCH (type:Тип) WHERE type.id=${req.body.type} `
+
+    // Передаём максимальный id(max), название типа(label) и номер его сообщества(community) дальше
+    cypher += `WITH max(all.id) AS maxID, type.community AS community, type.title AS label `
+
+    // Выбираем доску по id
+    cypher += `MATCH (desk:Доска {id:${req.body.desk}}) `
+
+    // Создаём вершину с параметрами id и community, с типом label 
+    cypher += `CREATE (node:\`${label}\` {id:maxID + 1}) `
+
+    // Добавляем параметры вершины из запроса
+    cypher += `SET node+=$properties `
+
+    // Создаём связь вершины и доски
     cypher += `CREATE (desk)-[:subsection {type:"СОДЕРЖИТ"}]->(node)`
 
     req.neo4j.write(cypher, {'properties': req.body.properties})
-        .then(nothing => {
+        .then(response => {
             res.status(200).end()
         })
         .catch(error => {
@@ -63,12 +92,12 @@ exports.post = async (req, res) => {
         })
 }
 
-// Функция моэет только переписать существующие или добавить новые свойства
+// Функция может только переписать существующие или добавить новые свойства
 // Она не может удалять существующие
 exports.put = (req, res) => {
     // Нужна ли проверка на существование вершины???
     req.neo4j.write(`MATCH (n) WHERE n.id=${req.params.id} SET n+=$properties`, {'properties': req.body})
-        .then(nothing => {
+        .then(response => {
             res.status(200).end()
         })
         .catch(e => {
@@ -81,7 +110,7 @@ exports.delete = (req, res) => {
     // Нужна ли проверка на существование вершины???
     // Нужна проверка на то, что это вершина, а не Тип или Доска???
     req.neo4j.write(`MATCH (n) WHERE n.id=${req.params.id} DETACH DELETE n`)
-        .then(nothing => {
+        .then(response => {
             res.status(200).end()
         })
         .catch(e => {

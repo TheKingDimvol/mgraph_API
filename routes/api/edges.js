@@ -11,8 +11,8 @@ router.get('/', (req, res) => {
         // WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(:Доска {title:"Типология Ядра"})  -  где Доска(req.query.desk) СОДЕРЖИТ вершину 'n'
         // return r AS edge  -  возвращаем ребро 'r' как edge
         cypher = `MATCH (n)-[r]->(m) ` +
-                `WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(:Доска {id:"${req.query.desk}"}) ` +
-                `RETURN r AS edge`
+                 `WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(:Доска {id:"${req.query.desk}"}) ` +
+                 `RETURN r AS edge`
     } else {
         res.status(400).json({error: 'Укажите id доски'})
     }

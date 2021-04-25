@@ -16,6 +16,8 @@ router.use('/desks', require('./desks'))
 
 router.use('/edges', require('./edges'))
 
+router.use('/typologies', require('./typologies'))
+
 /*
 router.use('/users', require('./users'))
 */

@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
         cypher = `MATCH (d:Доска) WHERE d.id=${req.query.typology} AND d.type="Типология" ` + 
                  `MATCH (n) WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(d) RETURN n`
     } else {
-        res.status(400).json({error: 'Укажите id доски(типологии)'})
+        res.status(400).json({error: 'Укажите id типологии'})
         return
     }
 
