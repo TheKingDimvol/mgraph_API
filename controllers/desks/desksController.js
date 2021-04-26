@@ -2,13 +2,20 @@ const jsonify = require("../../jsonifier")
 
 
 exports.getListOfDesks = (req, res) => {
+    if (req.query.desk) {
+        res.redirect('/typologyOfDesk?desk=' + req.query.desk)
+    }
     req.neo4j.read("MATCH (n:Доска) WHERE n.type<>'Типология' RETURN n.title AS title, n.id AS id")
         .then(desks => {
             let table = []
             desks.records.map(desk => {
+                let id = desk.get('id')
+                if (id.low !== undefined) {
+                    id = id.low
+                }
                 let obj = {
                     'Название' : desk.get('title'),
-                    'id' : desk.get('id').low
+                    'id' : id
                     }
                 table.push(obj)
             })
@@ -19,7 +26,9 @@ exports.getListOfDesks = (req, res) => {
 exports.get = async (req, res) => {
     let answer = {}
 
-    let cypher = `MATCH (desk {id:${req.params.desk}})-[:subsection {type:"ИСПОЛЬЗУЕТ"}]->(typology) `
+    let cypher = `MATCH (desk {id:${req.params.desk}})`
+    cypher += `MATCH (desk)-[:subsection*1.. {type:"ИСПОЛЬЗУЕТ"}]->(typology) `
+    cypher += `WHERE typology.type="Типология" `
     cypher += `MATCH (typology)-[:subsection {type:"СОДЕРЖИТ"}]->(type) `
     cypher += `RETURN 
                 type,
@@ -119,3 +128,17 @@ exports.get = async (req, res) => {
     res.json(answer)
 }
 
+exports.post = (req, res) => {
+    let cypher = `MATCH (typology:Доска) WHERE typology.id=${req.body.typology} `
+    cypher += `MATCH (all) WITH max(all.id) AS maxID, typology `
+    cypher += `CREATE (desk:Доска {title:"${req.body.title}", type:"${req.body.type}", id:maxID + 1}) `
+    cypher += `CREATE (desk)-[:subsection {type:"ИСПОЛЬЗУЕТ"}]->(typology)`
+
+    req.neo4j.write(cypher)
+        .then(response => {
+            res.status(200).end()
+        })
+        .catch(error => {
+            res.status(400).json({error: error})
+        })
+}

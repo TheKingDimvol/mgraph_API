@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
         // WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(:Доска {title:"Типология Ядра"})  -  где Доска(req.query.desk) СОДЕРЖИТ вершину 'n'
         // return r AS edge  -  возвращаем ребро 'r' как edge
         cypher = `MATCH (n)-[r]->(m) ` +
-                 `WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(:Доска {id:"${req.query.desk}"}) ` +
+                 `WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(:Доска {id:${req.query.desk}}) ` +
                  `RETURN r AS edge`
     } else {
         res.status(400).json({error: 'Укажите id доски'})
@@ -38,8 +38,8 @@ router.post('/', edgeController.post)
 // Получение ребра по id 
 //router.get('/:id', edgeController.get)
 
-// Удаление ребра по id
-router.delete('/:id', edgeController.delete)
+// Удаление ребра по id начальной и конечной вершины
+router.delete('/', edgeController.delete)
 
 // Изменение ребра по id
 //router.put('/:id', edgeController.put)

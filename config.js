@@ -1,8 +1,8 @@
 module.exports = {
     neo4j: {
-        url: 'bolt://176.57.217.75:7687',
+        url: 'bolt://localhost:7687',
         username: 'neo4j',
-        password: 'miner2',
+        password: '123',
         database: 'Graph Database'
     },
     server: {

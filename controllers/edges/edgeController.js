@@ -18,8 +18,10 @@ exports.get = (req, res) => {
 */
 
 exports.post = (req, res) => {
-    req.neo4j.write(`CREATE (n {id:${req.body.startID}})-[r:subsection $properties]->(m {id:${req.body.endID}})`,
-                    {'properties': req.body.properties})
+    let cypher = `MATCH (start {id:${req.body.start}}), (end {id:${req.body.end}}) `
+    cypher += `CREATE (start)-[r:subsection $properties]->(end)`
+    
+    req.neo4j.write(cypher, {'properties': req.body.properties})
         .then(nothing => {
             res.status(200).end()
         })
@@ -48,7 +50,7 @@ exports.delete = (req, res) => {
     // (n)-[r {type:"<Тип>"}]->(m)  -  удалить ребра идущие из вершины n в вершину m с определенным типом <Тип>
     // (n)-[r]->(m)  -  удалить ребра идущие из вершины n в вершину m
     // (n)-[r]-(m)  -  удалить все ребра между вершинами
-    req.neo4j.write(`MATCH (n {id:${req.body.startID}})-[r {type:"${req.body.type}"}]->(m {id:${req.body.endID}}) DELETE r`)
+    req.neo4j.write(`MATCH (n {id:${req.body.start}})-[r]->(m {id:${req.body.end}}) DELETE r`)
         .then(nothing => {
             res.status(200).end()
         })

@@ -37,7 +37,7 @@ app.use((req, res, next) => {
     next()
 })
 
-// Все пути api находятся в папке routes (index.js)
+// Все пути находятся в папке routes (index.js)
 app.use(require('./routes'))
 
 

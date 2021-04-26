@@ -35,10 +35,16 @@ exports.post = (req, res) => {
     cypher += `SET type+=$properties `
 
     // Создаём связь типа и типологии
-    cypher += `CREATE (typology)-[:subsection {type:"СОДЕРЖИТ"}]->(type)`
+    cypher += `CREATE (typology)-[:subsection {type:"СОДЕРЖИТ"}]->(type) `
+
+    // Вовзращаем id типологии для проверки
+    cypher += `RETURN typology.id`
 
     req.neo4j.write(cypher, {'properties': req.body.properties})
         .then(response => {
+            if (response.records.length === 0) {
+                res.status(400).json({error: 'Нет типологии с id: ' + req.body.typology})
+            }
             res.status(200).end()
         })
         .catch(error => {
