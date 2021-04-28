@@ -3,7 +3,7 @@ exports.accessControll = async (req, res, next) => {
         return next()
     }
 
-    console.log(req.user)
+    //console.log(req.user)
 
     if (req.user.roles.includes('Super Admin')) {
         return next()

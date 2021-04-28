@@ -1,14 +1,23 @@
 const router = require('express').Router();
-const desksController = require('../../../controllers/desks/desksController')
+const desksController = require('../../../controllers/desks/desksController');
+const { getNodes, getEdges, getTypology } = require('../../../controllers/desks/getDesksData');
 
 
 router.get('/', desksController.getListOfDesks)
 
-router.get('/:id', desksController.get)
+router.get('/:id', desksController.getAllDeskData)
 
-router.post('/', desksController.post)
+router.get('/:id/properties/nodes', getNodes)
 
-router.put('/:id' , desksController.put)
+router.get('/:id/properties/edges', getEdges)
+
+router.get('/:id/properties/typology', getTypology)
+
+router.post('/', desksController.createDesk)
+
+router.put('/:id' , desksController.changeDesk)
+
+router.delete('/:id', desksController.deleteDesk)
 
 
 module.exports = router

@@ -23,7 +23,7 @@ exports.getListOfDesks = (req, res) => {
         })
 }
 
-exports.get = async (req, res) => {
+exports.getAllDeskData = async (req, res) => {
     let answer = {}
 
     let cypher = `MATCH (desk {id:${req.params.id}})`
@@ -65,9 +65,9 @@ exports.get = async (req, res) => {
                 let desk = {}
                 let typology = {}
 
-                desk.id = record.get('deskID').low
+                desk.id = record.get('deskID').low !== undefined ? record.get('deskID').low : record.get('deskID')
                 desk.title = record.get('deskTitle')
-                typology.id = record.get('typologyID').low
+                typology.id = record.get('typologyID').low ? record.get('typologyID').low : record.get('typologyID')
                 typology.title = record.get('typologyTitle')
 
                 answer.desk = desk
@@ -128,7 +128,7 @@ exports.get = async (req, res) => {
     res.json(answer)
 }
 
-exports.post = (req, res) => {
+exports.createDesk = (req, res) => {
     let cypher = `MATCH (typology:Доска) WHERE typology.id=${req.body.typology} `
     cypher += `MATCH (all) WITH max(all.id) AS maxID, typology `
     cypher += `CREATE (desk:Доска {title:"${req.body.title}", type:"${req.body.type}", id:maxID + 1}) `
@@ -143,9 +143,21 @@ exports.post = (req, res) => {
         })
 }
 
-exports.put = (req, res) => {
+exports.changeDesk = (req, res) => {
     // Нужна ли проверка на существование вершины???
     req.neo4j.write(`MATCH (n) WHERE n.id=${req.params.id} SET n+=$properties`, {'properties': req.body})
+        .then(response => {
+            res.status(200).end()
+        })
+        .catch(e => {
+            //console.log(e)
+            res.status(400).json({error: 'Плохой запрос'})
+        })
+}
+
+exports.deleteDesk = (req, res) => {
+    // Нужна ли проверка на существование вершины???
+    req.neo4j.write(`MATCH (n:Доска) WHERE n.id=${req.params.id} DETACH DELETE n`)
         .then(response => {
             res.status(200).end()
         })

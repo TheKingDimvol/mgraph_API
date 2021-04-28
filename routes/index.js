@@ -26,7 +26,7 @@ router.get('/makeDesksAsLabels', async (req, res) => {
 
                 let cypher = `MATCH (n:\`Доска\`)-[:subsection {type:"СОДЕРЖИТ"}]->(node)
                                 WHERE n.title="${desk}"
-                                SET node:\`${desk}\``
+                                REMOVE node:\`${desk}\``
 
                 req.neo4j.write(cypher)
             });
