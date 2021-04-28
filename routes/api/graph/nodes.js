@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const jsonify = require('../../jsonifier')
-let nodeController = require('../../controllers/nodes/nodeController')
+const jsonify = require('../../../jsonifier')
+let nodeController = require('../../../controllers/nodes/nodeController')
 
 
 router.get('/', (req, res) => {

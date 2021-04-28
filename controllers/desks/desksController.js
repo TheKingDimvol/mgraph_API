@@ -26,7 +26,7 @@ exports.getListOfDesks = (req, res) => {
 exports.get = async (req, res) => {
     let answer = {}
 
-    let cypher = `MATCH (desk {id:${req.params.desk}})`
+    let cypher = `MATCH (desk {id:${req.params.id}})`
     cypher += `MATCH (desk)-[:subsection*1.. {type:"ИСПОЛЬЗУЕТ"}]->(typology) `
     cypher += `WHERE typology.type="Типология" `
     cypher += `MATCH (typology)-[:subsection {type:"СОДЕРЖИТ"}]->(type) `
@@ -40,7 +40,7 @@ exports.get = async (req, res) => {
     let checkForError = await req.neo4j.read(cypher)
             .then(response => {
                 if (!response.records.length) {
-                    return {error: 'Нет доски с id: ' + req.params.desk}
+                    return {error: 'Нет доски с id: ' + req.params.id}
                 }
 
                 let types = []
@@ -85,7 +85,7 @@ exports.get = async (req, res) => {
         return
     }
 
-    cypher  = `MATCH (desk {id:${req.params.desk}})-[:subsection {type:"ИСПОЛЬЗУЕТ"}]->(typology)`
+    cypher  = `MATCH (desk {id:${req.params.id}})-[:subsection {type:"ИСПОЛЬЗУЕТ"}]->(typology)`
     cypher += `MATCH (desk)-[:subsection {type:"СОДЕРЖИТ"}]->(node)`
     cypher += `RETURN node`
 
@@ -105,7 +105,7 @@ exports.get = async (req, res) => {
     answer.nodes = nodes
 
 
-    cypher  = `MATCH (desk {id:${req.params.desk}})-[:subsection {type:"ИСПОЛЬЗУЕТ"}]->(typology)`
+    cypher  = `MATCH (desk {id:${req.params.id}})-[:subsection {type:"ИСПОЛЬЗУЕТ"}]->(typology)`
     cypher += `MATCH (desk)-[:subsection {type:"СОДЕРЖИТ"}]->()-[edge]->()`
     cypher += `RETURN edge`
 
@@ -140,5 +140,17 @@ exports.post = (req, res) => {
         })
         .catch(error => {
             res.status(400).json({error: error})
+        })
+}
+
+exports.put = (req, res) => {
+    // Нужна ли проверка на существование вершины???
+    req.neo4j.write(`MATCH (n) WHERE n.id=${req.params.id} SET n+=$properties`, {'properties': req.body})
+        .then(response => {
+            res.status(200).end()
+        })
+        .catch(e => {
+            //console.log(e)
+            res.status(400).json({error: 'Плохой запрос'})
         })
 }

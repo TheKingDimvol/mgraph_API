@@ -45,7 +45,7 @@ exports.getDesksTypology = (req, res) => {
 
 exports.get = (req, res) => {
     let cypher = `MATCH (typology:Доска)-[:subsection {type:"СОДЕРЖИТ"}]->(type) ` 
-    cypher += `WHERE typology.id=${req.params.typology} AND typology.type='Типология' `
+    cypher += `WHERE typology.id=${req.params.id} AND typology.type='Типология' `
     cypher += `RETURN type`
 
     req.neo4j.read(cypher)
@@ -73,5 +73,17 @@ exports.post = (req, res) => {
         })
         .catch(error => {
             res.status(400).json({error: error})
+        })
+}
+
+exports.put = (req, res) => {
+    // Нужна ли проверка на существование вершины???
+    req.neo4j.write(`MATCH (n) WHERE n.id=${req.params.id} SET n+=$properties`, {'properties': req.body})
+        .then(response => {
+            res.status(200).end()
+        })
+        .catch(e => {
+            //console.log(e)
+            res.status(400).json({error: 'Плохой запрос'})
         })
 }

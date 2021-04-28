@@ -1,3 +1,6 @@
+const { accessControll } = require('../../middlewares/accessControll');
+const { authenticateToken } = require('../../middlewares/authentication');
+const { getUserRights } = require('../../middlewares/userRights');
 const router = require('express').Router();
 
 
@@ -6,20 +9,9 @@ router.get('/', (req, res) => {
     res.send("In progress...")
 })
 
+router.use('/auth', require('./auth'))
 
-// API routes
-router.use('/nodes', require('./nodes'))
+router.use('/', authenticateToken, getUserRights, accessControll, require('./graph'))
 
-router.use('/types', require('./types'))
-
-router.use('/desks', require('./desks'))
-
-router.use('/edges', require('./edges'))
-
-router.use('/typologies', require('./typologies'))
-
-/*
-router.use('/users', require('./users'))
-*/
 
 module.exports = router

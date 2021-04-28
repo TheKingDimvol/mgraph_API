@@ -9,6 +9,7 @@ app.use(express.json())
 // BodyParser для Form
 app.use(express.urlencoded({extended: false}))
 
+/*
 // Функция принимает любой запрос, печатает его метод и адрес источника
 // Если адрес источник это localhost, то разрешает ему воспользоваться API 
 // И передает запрос дальше
@@ -30,6 +31,7 @@ app.use(function (req, res, next) {
 
     next()
 })
+*/
 
 // Neo4j-driver для обработки запросов связанный с базой данных
 app.use((req, res, next) => {
