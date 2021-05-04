@@ -2,18 +2,7 @@ const jsonify = require("../../jsonifier")
 
 
 exports.getListOfTypologies = (req, res) => {
-    req.neo4j.read("MATCH (n:Доска) WHERE n.type='Типология' RETURN n.title AS title, n.id AS id")
-        .then(desks => {
-            let table = []
-            desks.records.map(desk => {
-                let obj = {
-                    'Название' : desk.get('title'),
-                    'id' : desk.get('id').low
-                    }
-                table.push(obj)
-            })
-            res.json(table)
-        })
+    res.redirect('/api/desks?type=Типология')
 }
 
 exports.getDesksTypology = (req, res) => {
@@ -43,7 +32,7 @@ exports.getDesksTypology = (req, res) => {
         })
 } 
 
-exports.get = (req, res) => {
+exports.getTypology = (req, res) => {
     let cypher = `MATCH (typology:Доска)-[:subsection {type:"СОДЕРЖИТ"}]->(type) ` 
     cypher += `WHERE typology.id=${req.params.id} AND typology.type='Типология' `
     cypher += `RETURN type`
@@ -63,9 +52,11 @@ exports.get = (req, res) => {
         })
 }
 
-exports.post = (req, res) => {
+exports.createTypology = (req, res) => {
     let cypher = `MATCH (all) WITH max(all.id) AS maxID `
+    cypher += `MATCH (user) WHERE user.uuid="${req.user.uuid}" `
     cypher += `CREATE (typology:Доска {title:"${req.body.title}", type:"Типология", id:maxID + 1})`
+    cypher += `CREATE (typology)<-[:subsection {type:"СОЗДАЛ"}]-(user) `
 
     req.neo4j.write(cypher)
         .then(response => {
@@ -76,11 +67,26 @@ exports.post = (req, res) => {
         })
 }
 
-exports.put = (req, res) => {
+exports.changeTypology = (req, res) => {
     // Нужна ли проверка на существование вершины???
     req.neo4j.write(`MATCH (n) WHERE n.id=${req.params.id} SET n+=$properties`, {'properties': req.body})
         .then(response => {
             res.status(200).end()
+        })
+        .catch(e => {
+            //console.log(e)
+            res.status(400).json({error: 'Плохой запрос'})
+        })
+}
+
+exports.deleteTypology = (req, res) => {
+    // Нужна ли проверка на существование вершины???
+    let cypher = `MATCH (n:Доска {type:"Типология"})-[*0..]->(m) WHERE n.id=${req.params.id} `
+    cypher += `DETACH DELETE n, m`
+
+    req.neo4j.write(cypher)
+        .then(response => {
+            res.status(200).send('Успешно')
         })
         .catch(e => {
             //console.log(e)

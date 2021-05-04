@@ -2,34 +2,28 @@ const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
 
-exports.confirmUserInput = (req, res, next) => {
-    if (!req.body.username) {
-        return res.status(400).json({ error: 'Нет имени пользователя' })
-    }
-
-    const user = {
-        username: req.body.username
-    }
-    req.user = user
-    
-    next()
-}
-
 exports.authenticate = async (req, res) => {
-    let cypher = `MATCH (n:User) WHERE n.name="${req.user.username}" RETURN n.name AS name`
-    const findUser = await req.neo4j.read(cypher)
+    let cypher = `MATCH (n:User) WHERE n.username="${req.user.username}" RETURN n.uuid AS uuid, n.password AS password`
+    const userError = await req.neo4j.read(cypher)
         .then(response => {
-            return response.records.length === 1
+            if (response.records.length != 1) {
+                return 'Нет пользователя с данным именем'
+            }
+            if (response.records[0].get('password') !== req.body.password) {
+                return 'Неверный пароль'
+            }
+
+            req.user.uuid = response.records[0].get('uuid')
         })
         .catch(error => {
-            console.log(error)
+            //console.log(error)
             return error
         })
 
-    if (findUser) {
-        const accessToken = jwt.sign(req.user, process.env.ACCESS_TOKEN_SECRET)
-        return res.json({ accessToken })
+    if (userError) {
+        return res.status(400).json({ error: userError })
     }
 
-    res.send('Нет пользователя с данным именем')
+    const accessToken = jwt.sign(req.user, process.env.ACCESS_TOKEN_SECRET)
+    res.json({ accessToken })
 }

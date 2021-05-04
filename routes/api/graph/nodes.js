@@ -1,42 +1,17 @@
 const router = require('express').Router();
-const jsonify = require('../../../jsonifier')
-let nodeController = require('../../../controllers/nodes/nodeController')
+let nodeController = require('../../../controllers/nodes/nodeController');
+const { getNodesByDesk } = require('../../../controllers/nodes/nodesController');
 
 
-router.get('/', (req, res) => {
-    let cypher = ''
+router.get('/', getNodesByDesk)
 
-    if (req.query.desk) {
-        cypher = `MATCH (d:Доска) WHERE d.id=${req.query.desk} AND d.type<>"Типология" ` + 
-                 `MATCH (n) WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(d) RETURN n`
-    } else {
-        res.status(400).json({error: 'Укажите id доски'})
-        return
-    }
+router.post('/', nodeController.createNode)
 
-    req.neo4j.read(cypher)
-        .then(result => {
-            let nodes = []
-            result.records.map(record => {
-                let node = jsonify(record.get('n'))
-                if (node) nodes.push(node)
-            })
-            res.json(nodes)
-        })
-        .catch(e => {
-            //console.log(e)
-            res.status(400).json({error: 'Что-то не так с запросом'})
-        })
-})
+router.get('/:id', nodeController.getNode)
 
+router.put('/:id', nodeController.changeNode)
 
-router.post('/', nodeController.post)
-
-router.get('/:id', nodeController.get)
-
-router.put('/:id', nodeController.put)
-
-router.delete('/:id', nodeController.delete)
+router.delete('/:id', nodeController.deleteNode)
 
 
 module.exports = router

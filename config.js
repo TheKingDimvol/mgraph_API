@@ -1,3 +1,6 @@
+require('dotenv').config()
+
+
 module.exports = {
     neo4j: {
         url: 'bolt://localhost:7687',
@@ -7,5 +10,6 @@ module.exports = {
     },
     server: {
         PORT: process.env.PORT || 5000
-    }
+    },
+    roles: ['User', 'Redactor', 'SuperRedactor', 'DeskCreator', 'Admin', 'SuperAdmin']
 }

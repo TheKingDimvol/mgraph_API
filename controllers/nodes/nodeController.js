@@ -1,8 +1,8 @@
 const jsonify = require('../../jsonifier')
 
 
-exports.get = (req, res) => {
-    const notNodes = ['Доска', 'Тип']
+exports.getNode = (req, res) => {
+    const notNodes = ['Доска', 'Тип', 'User']
 
     req.neo4j.read(`MATCH (n) WHERE n.id=${req.params.id} RETURN n`)
         .then(response => {
@@ -35,7 +35,7 @@ exports.get = (req, res) => {
         })
 }
 
-exports.post = async (req, res) => {
+exports.createNode = async (req, res) => {
     let label = ''
 
     let checkForError = await req.neo4j
@@ -94,7 +94,7 @@ exports.post = async (req, res) => {
 
 // Функция может только переписать существующие или добавить новые свойства
 // Она не может удалять существующие
-exports.put = (req, res) => {
+exports.changeNode = (req, res) => {
     // Нужна ли проверка на существование вершины???
     req.neo4j.write(`MATCH (n) WHERE n.id=${req.params.id} SET n+=$properties`, {'properties': req.body})
         .then(response => {
@@ -106,7 +106,7 @@ exports.put = (req, res) => {
         })
 }
 
-exports.delete = (req, res) => {
+exports.deleteNode = (req, res) => {
     // Нужна ли проверка на существование вершины???
     // Нужна проверка на то, что это вершина, а не Тип или Доска???
     req.neo4j.write(`MATCH (n) WHERE n.id=${req.params.id} DETACH DELETE n`)

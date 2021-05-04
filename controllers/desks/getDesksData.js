@@ -61,7 +61,10 @@ exports.getTypology = (req, res) => {
                 if (type) types.push(type)
             })
 
-            const id = response.records[0].get('typologyID').low ? response.records[0].get('typologyID').low : response.records[0].get('typologyID')
+            const id = response.records[0].get('typologyID').low ? 
+                        response.records[0].get('typologyID').low : 
+                        response.records[0].get('typologyID')
+                        
             const typology = {
                 id,
                 title: response.records[0].get('typologyTitle')

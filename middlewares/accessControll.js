@@ -1,39 +1,70 @@
-exports.accessControll = async (req, res, next) => {
-    if (req.method === 'GET') {
+exports.workWithGraph = (req, res, next) => {
+    if (req.method === 'GET' || req.user.roles.includes('Super')) {
         return next()
     }
 
-    //console.log(req.user)
-
-    if (req.user.roles.includes('Super Admin')) {
+    if (req.user.desksEdit.includes(req.body.desk)) {
         return next()
     }
 
-    if (req.user.roles.includes('Admin') || req.user.roles.length === 1) {
+    res.status(400).json({ error: 'В доступе отказано' })
+}
+
+exports.workWithDesks = (req, res, next) => {
+    if (req.method === 'GET' || req.user.roles.includes('Super')) {
+        return next()
+    }
+
+    if (req.method === 'POST') {
+        if (req.user.roles.includes('Desk Creator')) return next()
         return res.status(400).json({ error: 'В доступе отказано' })
     }
-    
-    switch (req._parsedUrl.pathname) {
-        case('/nodes'): {
-            console.log('nodes')
-            break
-        }
-        case('/edges'): {
-            console.log('edges')
-            break
-        }
-        case('/types'): {
-            console.log('types')
-            break
-        }
-        case('/desks'): {
-            console.log('desks')
-            break
-        }
-        case('/typologies'): {
-            console.log('typologies')
-            break
-        }
+
+    if (req.user.desksCreated.includes(req.body.desk)) {
+        return next()
     }
-    next()
+
+    res.status(400).json({ error: 'В доступе отказано' })
+}
+
+exports.accessToDeleteUser = (req, res, next) => {
+    if (req.user.roles.includes('Super') || req.user.roles.includes('Admin') || req.params.uuid == req.user.uuid) {
+        return next()
+    }
+    res.status(400).json({ error: 'Нет прав' })
+}
+
+exports.accessGetUsers = (req, res, next) => {
+    if (req.user.roles.some(role => ['Super', 'Admin', 'Desk Creator'].includes(role))) {
+        return next()
+    }
+    res.status(400).json({ error: 'Нет прав' })
+}
+
+exports.accessMakeEditor = (req, res, next) => {
+    if (req.user.roles.includes('Super')) {
+        return next()
+    }
+
+    if (req.user.desksCreated.includes(req.body.desk)) {
+        return next()
+    }
+
+    res.status(400).json({ error: 'Нет прав' })
+}
+
+exports.accessMakeAdmin = (req, res, next) => {
+    if (req.user.roles.includes('Super')) {
+        return next()
+    }
+
+    res.status(400).json({ error: 'Нет прав' })
+}
+
+exports.accessMakeDeskCreator = (req, res, next) => {
+    if (req.user.roles.includes('Super') || req.user.roles.includes('Admin')) {
+        return next()
+    }
+
+    res.status(400).json({ error: 'Нет прав' })
 }

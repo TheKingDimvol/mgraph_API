@@ -1,3 +1,4 @@
+const { roles } = require('../../config')
 const jsonify = require('../../jsonifier')
 
 
@@ -19,6 +20,16 @@ exports.get = (req, res) => {
 }
 
 exports.post = (req, res) => {
+    const title = req.body.properties.title
+
+    if (!title && !req.body.properties.community) {
+        return res.status(400).json({ error: 'Плохой запрос' })
+    }
+
+    if (roles.includes(title)) {
+        return res.status(400).json({ error: 'Запрещённое имя типа' })
+    }
+
     // Берём все вершины
     let cypher = `MATCH (all) `
 

@@ -35,7 +35,7 @@ app.use(function (req, res, next) {
 
 // Neo4j-driver для обработки запросов связанный с базой данных
 app.use((req, res, next) => {
-    req.neo4j = require('./neo4j')
+    req.neo4j = require('./middlewares/neo4j')
     next()
 })
 

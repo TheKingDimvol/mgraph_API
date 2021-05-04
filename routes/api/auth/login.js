@@ -1,4 +1,5 @@
-const { confirmUserInput, authenticate } = require('../../../controllers/Users/login');
+const { authenticate } = require('../../../controllers/Users/login');
+const { confirmUserInput } = require('../../../middlewares/confirmUserInput');
 const router = require('express').Router();
 
 

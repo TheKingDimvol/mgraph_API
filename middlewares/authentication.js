@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken")
 
-exports.authenticateToken = (req, res, next) => {
-    if (req.method === 'GET') {
+exports.authenticateToken = (req, res, next) => {  
+    if (req.method === 'GET' && !req.baseUrl.includes('/api/users')) {
         return next()
     }
 

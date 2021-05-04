@@ -6,11 +6,11 @@ router.get('/', typologyController.getListOfTypologies)
 
 router.get('/typologyOfDesk', typologyController.getDesksTypology)
 
-router.get('/:id', typologyController.get)
+router.get('/:id', typologyController.getTypology)
 
-router.post('/', typologyController.post)
+router.post('/', typologyController.createTypology)
 
-router.put('/:id', typologyController.put)
+router.put('/:id', typologyController.changeTypology)
 
 
 
