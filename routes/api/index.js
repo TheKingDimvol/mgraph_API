@@ -1,5 +1,3 @@
-const { authenticateToken } = require('../../middlewares/authentication');
-const { getUserRights } = require('../../middlewares/userRights');
 const router = require('express').Router();
 
 
@@ -12,7 +10,7 @@ router.use('/users', require('./users'))
 
 router.use('/auth', require('./auth'))
 
-router.use('/', authenticateToken, getUserRights, require('./graph'))
+router.use('/', require('./graph'))
 
 
 module.exports = router

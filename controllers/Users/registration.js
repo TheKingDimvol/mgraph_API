@@ -1,3 +1,6 @@
+const bcrypt = require('bcrypt')
+
+
 exports.checkUserInfo = async (req, res, next) => {
     const userInfoUnavailable = await req.neo4j.read(
         `MATCH (user:User) WHERE user.username="${req.body.username}" OR user.email="${req.body.email}" 
@@ -21,9 +24,11 @@ exports.checkUserInfo = async (req, res, next) => {
         return res.status(400).json(userInfoUnavailable)
     }
 
+    const hashedPassword = await bcrypt.hash(req.body.password, 10)
+
     req.user = {
         username: req.body.username,
-        password: req.body.password,
+        password: hashedPassword,
         email: req.body.email
     }
 

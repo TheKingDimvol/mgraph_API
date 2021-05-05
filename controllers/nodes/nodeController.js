@@ -6,10 +6,6 @@ exports.getNode = (req, res) => {
 
     req.neo4j.read(`MATCH (n) WHERE n.id=${req.params.id} RETURN n`)
         .then(response => {
-            /*if (!response.records.length) {
-                res.status(400).json({error: 'Нет вершины с id: ' + req.params.id})
-                return 
-            }*/
             switch (response.records.length) {
                 case 0: 
                     res.status(400).json({error: 'Нет вершины с id: ' + req.params.id})
@@ -84,7 +80,7 @@ exports.createNode = async (req, res) => {
 
     req.neo4j.write(cypher, {'properties': req.body.properties})
         .then(response => {
-            res.status(200).end()
+            res.status(200).send('Успешно')
         })
         .catch(error => {
             //console.log(error)
@@ -96,9 +92,9 @@ exports.createNode = async (req, res) => {
 // Она не может удалять существующие
 exports.changeNode = (req, res) => {
     // Нужна ли проверка на существование вершины???
-    req.neo4j.write(`MATCH (n) WHERE n.id=${req.params.id} SET n+=$properties`, {'properties': req.body})
+    req.neo4j.write(`MATCH (n) WHERE n.id=${req.params.id} SET n+=$properties`, {'properties': req.body.properties})
         .then(response => {
-            res.status(200).end()
+            res.status(200).send('Успешно')
         })
         .catch(e => {
             //console.log(e)
@@ -111,7 +107,7 @@ exports.deleteNode = (req, res) => {
     // Нужна проверка на то, что это вершина, а не Тип или Доска???
     req.neo4j.write(`MATCH (n) WHERE n.id=${req.params.id} DETACH DELETE n`)
         .then(response => {
-            res.status(200).end()
+            res.status(200).send('Успешно')
         })
         .catch(e => {
             //console.log(e)

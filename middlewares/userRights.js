@@ -1,5 +1,5 @@
 exports.getUserRights = async (req, res, next) => {
-    if (req.method === 'GET' && !req.baseUrl.includes('/api/users')) {
+    if (!req.user.authenticated) {
         return next()
     }
 

@@ -1,17 +1,20 @@
 const router = require('express').Router();
-let nodeController = require('../../../controllers/nodes/nodeController');
+const nodeController = require('../../../controllers/nodes/nodeController');
 const { getNodesByDesk } = require('../../../controllers/nodes/nodesController');
+const { validateGetNodes } = require('../../../middlewares/inputValidation/nodesValidation');
+const { validateGetNode, validateCreateNode, validateChangeNode, validateDeleteNode } = 
+require('../../../middlewares/inputValidation/nodeValidation');
 
 
-router.get('/', getNodesByDesk)
+router.get('/', validateGetNodes, getNodesByDesk)
 
-router.post('/', nodeController.createNode)
+router.post('/', validateCreateNode, nodeController.createNode)
 
-router.get('/:id', nodeController.getNode)
+router.get('/:id', validateGetNode, nodeController.getNode)
 
-router.put('/:id', nodeController.changeNode)
+router.put('/:id', validateChangeNode, nodeController.changeNode)
 
-router.delete('/:id', nodeController.deleteNode)
+router.delete('/:id', validateDeleteNode, nodeController.deleteNode)
 
 
 module.exports = router

@@ -1,5 +1,5 @@
 exports.getUsers = (req, res) => {
-    let cypher = `MATCH p=(user:User)-[*1..1]-() `
+    let cypher = `MATCH (user:User) `
     switch (req.user.roles[0]) {
         case 'Super':
             break

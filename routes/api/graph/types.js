@@ -1,48 +1,19 @@
 const router = require('express').Router();
-const jsonify = require('../../../jsonifier')
-let typeController = require('../../../controllers/nodes/typeController')
+const typeController = require('../../../controllers/nodes/typeController');
+const { getTypesOfTypology } = require('../../../controllers/nodes/typesController');
+const { validateGetTypes } = require('../../../middlewares/inputValidation/typesValidation');
+const { validateGetType, validateCreateType, validateDeleteType } = require('../../../middlewares/inputValidation/typeValidation');
 
 
-router.get('/', (req, res) => {
-    let cypher = ''
+router.get('/', validateGetTypes, getTypesOfTypology)
 
-    if (req.query.typology) {
-        cypher = `MATCH (d:Доска) WHERE d.id=${req.query.typology} AND d.type="Типология" ` + 
-                 `MATCH (n) WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(d) RETURN n`
-    } else {
-        res.status(400).json({error: 'Укажите id типологии'})
-        return
-    }
+router.post('/', validateCreateType, typeController.createType)
 
-    req.neo4j.read(cypher)
-        .then(result => {
-            if (!result.records.length) {
-                res.status(400).json({error: `Типологии с id='${req.query.typology}' не существует`})
-                return
-            }
+router.get('/:id', validateGetType, typeController.getType)
 
-            let nodes = []
-            result.records.map(record => {
-                let node = jsonify(record.get('n'))
-                if (node) nodes.push(node)
-            }) 
+router.put('/:id', validateCreateType, typeController.changeType)
 
-            res.json(nodes)
-        }) 
-        .catch(e => {  
-            //console.log(e)
-            res.status(400).json({error: 'Что-то не так с запросом'})
-        })
-})
-
-
-router.post('/', typeController.post)
-
-router.get('/:id', typeController.get)
-
-router.put('/:id', typeController.put)
-
-router.delete('/:id', typeController.delete)
+router.delete('/:id', validateDeleteType, typeController.deleteType)
 
 
 module.exports = router

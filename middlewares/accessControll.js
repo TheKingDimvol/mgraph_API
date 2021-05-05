@@ -1,17 +1,31 @@
 exports.workWithGraph = (req, res, next) => {
-    if (req.method === 'GET' || req.user.roles.includes('Super')) {
+    if (req.method === 'GET') {
         return next()
     }
 
-    if (req.user.desksEdit.includes(req.body.desk)) {
-        return next()
+    if (!req.user.authenticated) {
+        return res.status(400).json({ error: 'Для этого действия нужна авторизация' })
     }
+
+    if (req.body.desk == undefined) return res.status(400).json({ error: 'Укажите id доски в теле запроса' })
+
+    if (req.user.desksEdit.includes(req.body.desk) || req.user.roles.includes('Super')) {
+        return next()
+    } 
 
     res.status(400).json({ error: 'В доступе отказано' })
 }
 
 exports.workWithDesks = (req, res, next) => {
-    if (req.method === 'GET' || req.user.roles.includes('Super')) {
+    if (req.method === 'GET') {
+        return next()
+    }
+
+    if (!req.user.authenticated) {
+        return res.status(400).json({ error: 'Для этого действия нужна авторизация' })
+    }
+
+    if (req.user.roles.includes('Super')) {
         return next()
     }
 
@@ -19,6 +33,8 @@ exports.workWithDesks = (req, res, next) => {
         if (req.user.roles.includes('Desk Creator')) return next()
         return res.status(400).json({ error: 'В доступе отказано' })
     }
+
+    if (req.body.desk == undefined) return res.status(400).json({ error: 'Укажите id доски в теле запроса' })
 
     if (req.user.desksCreated.includes(req.body.desk)) {
         return next()
@@ -28,6 +44,10 @@ exports.workWithDesks = (req, res, next) => {
 }
 
 exports.accessToDeleteUser = (req, res, next) => {
+    if (!req.user.authenticated) {
+        return res.status(400).json({ error: 'Для этого действия нужна авторизация' })
+    }
+
     if (req.user.roles.includes('Super') || req.user.roles.includes('Admin') || req.params.uuid == req.user.uuid) {
         return next()
     }
@@ -35,6 +55,10 @@ exports.accessToDeleteUser = (req, res, next) => {
 }
 
 exports.accessGetUsers = (req, res, next) => {
+    if (!req.user.authenticated) {
+        return res.status(400).json({ error: 'Для этого действия нужна авторизация' })
+    }
+
     if (req.user.roles.some(role => ['Super', 'Admin', 'Desk Creator'].includes(role))) {
         return next()
     }
@@ -42,9 +66,15 @@ exports.accessGetUsers = (req, res, next) => {
 }
 
 exports.accessMakeEditor = (req, res, next) => {
+    if (!req.user.authenticated) {
+        return res.status(400).json({ error: 'Для этого действия нужна авторизация' })
+    }
+
     if (req.user.roles.includes('Super')) {
         return next()
     }
+
+    if (req.body.desk == undefined) return res.status(400).json({ error: 'Укажите id доски в теле запроса' })
 
     if (req.user.desksCreated.includes(req.body.desk)) {
         return next()
@@ -54,6 +84,10 @@ exports.accessMakeEditor = (req, res, next) => {
 }
 
 exports.accessMakeAdmin = (req, res, next) => {
+    if (!req.user.authenticated) {
+        return res.status(400).json({ error: 'Для этого действия нужна авторизация' })
+    }
+
     if (req.user.roles.includes('Super')) {
         return next()
     }
@@ -62,6 +96,10 @@ exports.accessMakeAdmin = (req, res, next) => {
 }
 
 exports.accessMakeDeskCreator = (req, res, next) => {
+    if (!req.user.authenticated) {
+        return res.status(400).json({ error: 'Для этого действия нужна авторизация' })
+    }
+
     if (req.user.roles.includes('Super') || req.user.roles.includes('Admin')) {
         return next()
     }

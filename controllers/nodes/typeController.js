@@ -2,7 +2,7 @@ const { roles } = require('../../config')
 const jsonify = require('../../jsonifier')
 
 
-exports.get = (req, res) => {
+exports.getType = (req, res) => {
     req.neo4j.read(`MATCH (n:Тип) WHERE n.id=${req.params.id} RETURN n`)
         .then(response => {
             if (!response.records.length) {
@@ -19,17 +19,7 @@ exports.get = (req, res) => {
         })
 }
 
-exports.post = (req, res) => {
-    const title = req.body.properties.title
-
-    if (!title && !req.body.properties.community) {
-        return res.status(400).json({ error: 'Плохой запрос' })
-    }
-
-    if (roles.includes(title)) {
-        return res.status(400).json({ error: 'Запрещённое имя типа' })
-    }
-
+exports.createType = (req, res) => {
     // Берём все вершины
     let cypher = `MATCH (all) `
 
@@ -37,7 +27,7 @@ exports.post = (req, res) => {
     cypher += `WITH max(all.id) AS max `
 
     // Выбираем типологию по id
-    cypher += `MATCH (typology:Доска {id:${req.body.typology}, type:"Типология"}) `
+    cypher += `MATCH (typology:Доска {id:${req.body.desk}, type:"Типология"}) `
 
     // Создаём тип с параметром id
     cypher += `CREATE (type:Тип {id:max + 1}) `
@@ -54,7 +44,7 @@ exports.post = (req, res) => {
     req.neo4j.write(cypher, {'properties': req.body.properties})
         .then(response => {
             if (response.records.length === 0) {
-                res.status(400).json({error: 'Нет типологии с id: ' + req.body.typology})
+                res.status(400).json({error: 'Нет типологии с id: ' + req.body.desk})
             }
             res.status(200).end()
         })
@@ -64,7 +54,7 @@ exports.post = (req, res) => {
         })
 }
 
-exports.put = (req, res) => {
+exports.changeType = (req, res) => {
     // Нужна ли проверка на существование вершины???
     req.neo4j.write(`MATCH (n) WHERE n.id=${req.params.id} SET n+=$properties`, {'properties': req.body})
         .then(response => {
@@ -76,7 +66,7 @@ exports.put = (req, res) => {
         })
 }
 
-exports.delete = (req, res) => {
+exports.deleteType = (req, res) => {
     // Нужна ли проверка на существование типа???
     req.neo4j.write(`MATCH (n:Тип) WHERE n.id=${req.params.id} DETACH DELETE n`)
         .then(response => {

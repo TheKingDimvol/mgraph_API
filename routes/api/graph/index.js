@@ -10,9 +10,9 @@ const success = (req, res, next) => {
 
 
 // API routes
-router.use('/nodes', workWithGraph, success, require('./nodes'))
+router.use('/nodes', workWithGraph, require('./nodes')) // Валидация данных запроса готова
 
-router.use('/types', workWithGraph, success, require('./types'))
+router.use('/types', workWithGraph, require('./types')) // Валидация данных запроса готова
 
 router.use('/desks', workWithDesks, success, require('./desks'))
 
