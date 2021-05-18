@@ -2,25 +2,30 @@ const Joi = require('joi');
 
 
 const getTypeSchema = Joi.object({
-    id: Joi.number()
-        .required()
-})
+    params: Joi.object({
+        id: Joi.number()
+            .required()
+    }).unknown()
+}).unknown()
 
 const createTypeSchema = Joi.object({
-    desk: Joi.number()
-        .required(),
-
-    properties: Joi.object({
-        title: Joi.string()
+    body: Joi.object({
+        desk: Joi.number()
             .required(),
-
-        community: Joi.number()
-            .required(),
-
-        id: Joi.any()
-            .forbidden()
-    }).unknown()
-})
+    
+        properties: Joi.object({
+            title: Joi.string()
+                .required()
+                .invalid('User', 'Desk Owner', 'Admin', 'Super'),
+    
+            community: Joi.number()
+                .required(),
+    
+            id: Joi.any()
+                .forbidden()
+        }).unknown()
+    }).unknown().required()
+}).unknown()
 
 const changeTypeSchema = Joi.object({
     params: Joi.object({
@@ -33,6 +38,10 @@ const changeTypeSchema = Joi.object({
             .required(),    
 
         properties: Joi.object({
+            title: Joi.string()
+                .optional()
+                .invalid('User', 'Desk Owner', 'Admin', 'Super'),
+
             community: Joi.any()
                 .forbidden(), 
 
@@ -40,7 +49,7 @@ const changeTypeSchema = Joi.object({
                 .forbidden()
         }).unknown().required()
     })
-})
+}).unknown()
 
 const deleteTypeSchema = Joi.object({
     params: Joi.object({
@@ -51,12 +60,12 @@ const deleteTypeSchema = Joi.object({
         desk: Joi.number()
             .required()
     })
-}).unknown().required()
+}).unknown()
 
 
 
 exports.validateGetType = (req, res, next) => {
-    const { error } = getTypeSchema.validate(req.params)
+    const { error } = getTypeSchema.validate(req)
     if (error) {
         return res.status(400).json({
             error: error.details[0].message
@@ -66,7 +75,7 @@ exports.validateGetType = (req, res, next) => {
 }
 
 exports.validateCreateType = (req, res, next) => {
-    const { error } = createTypeSchema.validate(req.body)
+    const { error } = createTypeSchema.validate(req)
     if (error) {
         return res.status(400).json({
             error: error.details[0].message

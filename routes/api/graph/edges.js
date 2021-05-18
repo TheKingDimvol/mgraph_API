@@ -1,21 +1,16 @@
 const router = require('express').Router();
 const jsonify = require('../../../jsonifier')
-const edgeController = require('../../../controllers/edges/edgeController')
+const edgeController = require('../../../controllers/edges/edgeController');
+const { validateGetAllEdges, validateCreateEdge, validateDeleteEdge } = require('../../../middlewares/inputValidation/edgesValidation');
 
 
-router.get('/', (req, res) => {
-    let cypher = ''
-
-    if (req.query.desk) {
-        // MATCH (n)-[r]->(m)  -  выбрать все ребра 'r' от точки 'n' к точке 'm'
-        // WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(:Доска {title:"Типология Ядра"})  -  где Доска(req.query.desk) СОДЕРЖИТ вершину 'n'
-        // return r AS edge  -  возвращаем ребро 'r' как edge
-        cypher = `MATCH (n)-[r]->(m) ` +
-                 `WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(:Доска {id:${req.query.desk}}) ` +
-                 `RETURN r AS edge`
-    } else {
-        res.status(400).json({error: 'Укажите id доски'})
-    }
+router.get('/', validateGetAllEdges, (req, res) => {
+    // MATCH (n)-[r]->(m)  -  выбрать все ребра 'r' от точки 'n' к точке 'm'
+    // WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(:Доска {title:"Типология Ядра"})  -  где Доска(req.query.desk) СОДЕРЖИТ вершину 'n'
+    // return r AS edge  -  возвращаем ребро 'r' как edge
+    let cypher = `MATCH (n)-[r]->(m) `
+    cypher += `WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(:Доска {id:${req.query.desk}}) `
+    cypher += `RETURN r AS edge`
 
     req.neo4j.read(cypher)
         .then(result => {
@@ -33,13 +28,13 @@ router.get('/', (req, res) => {
 })
 
 // Создание нового ребра
-router.post('/', edgeController.post)
+router.post('/', validateCreateEdge, edgeController.post)
 
 // Получение ребра по id 
 //router.get('/:id', edgeController.get)
 
 // Удаление ребра по id начальной и конечной вершины
-router.delete('/', edgeController.delete)
+router.delete('/', validateDeleteEdge, edgeController.delete)
 
 // Изменение ребра по id
 //router.put('/:id', edgeController.put)

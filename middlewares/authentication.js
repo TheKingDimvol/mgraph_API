@@ -5,6 +5,7 @@ exports.authenticateToken = (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1]
 
     if (token == null) {
+        req.user = {}
         req.user.authenticated = false
         return next()
     }

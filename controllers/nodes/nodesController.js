@@ -12,6 +12,11 @@ exports.getNodesByDesk = (req, res) => {
                 let node = jsonify(record.get('n'))
                 if (node) nodes.push(node)
             })
+
+            if (nodes.length === 0) {
+                return res.json({ message: 'Доска пустая или доски с данным id не существует' })
+            }
+
             res.json(nodes)
         })
         .catch(e => {

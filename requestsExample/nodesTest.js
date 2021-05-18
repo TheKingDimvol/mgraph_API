@@ -23,7 +23,6 @@ function postNodeFunc() {
             typeID: 1078,
             properties: {
                 title: 'Тестовая кампания',
-                //community: 0,
                 description: '',
                 sources: '',
                 timesize: '',
