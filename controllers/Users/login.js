@@ -25,6 +25,11 @@ exports.authenticate = async (req, res) => {
         return res.status(400).json({ error: userError })
     }
 
-    const accessToken = jwt.sign(req.user, process.env.ACCESS_TOKEN_SECRET)
+    const user = {
+        username: req.user.username,
+        uuid: req.user.uuid
+    }
+
+    const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
     res.json({ accessToken })
 }
