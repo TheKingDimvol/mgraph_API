@@ -1,26 +1,28 @@
 const { deleteUser, getUsers } = require('../../../controllers/Users/usersController');
 const { checkUserInfo, register } = require('../../../controllers/Users/registration');
 const { accessToDeleteUser, accessGetUsers } = require('../../../middlewares/accessControll');
-const { authenticateToken } = require('../../../middlewares/authentication');
-const { getUserRights } = require('../../../middlewares/userRights');
+const { getRoles } = require('../../../controllers/Users/userRightsByID');
 
 const router = require('express').Router();
 
 
+// Получить роли пользователя
+router.get('/:uuid/rights', getRoles)
+
 // Просмотр пользователей
-router.get('', authenticateToken, getUserRights, accessGetUsers, getUsers)
+router.get('', accessGetUsers, getUsers)
 
 // Регистрация нового пользователя
 router.post('/register', checkUserInfo, register)
 
 // Выдача прав
-router.use('/give-rights', authenticateToken, getUserRights, require('./addRights'))
+router.use('/give-rights', require('./addRights'))
 
 // Удаление пользователя
-router.delete('/delete/:uuid', authenticateToken, getUserRights, accessToDeleteUser, deleteUser)
+router.delete('/delete/:uuid', accessToDeleteUser, deleteUser)
 
 // Удаление прав у пользователя
-router.use('/remove-rights', authenticateToken, getUserRights, require('./removeRights'))
+router.use('/remove-rights', require('./removeRights'))
 
 
 module.exports = router
