@@ -11,5 +11,5 @@ module.exports = {
     server: {
         PORT: process.env.PORT || 5000
     },
-    roles: ['User', 'Desk Creator', 'Admin', 'Super']
+    roles: ['User', 'Desk Owner', 'Admin', 'Super']
 }

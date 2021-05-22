@@ -30,7 +30,7 @@ exports.workWithDesks = (req, res, next) => {
     }
 
     if (req.method === 'POST') {
-        if (req.user.roles.includes('Desk Creator')) return next()
+        if (req.user.roles.includes('Desk Owner')) return next()
         return res.status(400).json({ error: 'В доступе отказано' })
     }
 
@@ -59,7 +59,7 @@ exports.accessGetUsers = (req, res, next) => {
         return res.status(400).json({ error: 'Для этого действия нужна авторизация' })
     }
 
-    if (req.user.roles.some(role => ['Super', 'Admin', 'Desk Creator'].includes(role))) {
+    if (req.user.roles.some(role => ['Super', 'Admin', 'Desk Owner'].includes(role))) {
         return next()
     }
     res.status(400).json({ error: 'Нет прав' })
@@ -95,7 +95,7 @@ exports.accessMakeAdmin = (req, res, next) => {
     res.status(400).json({ error: 'Нет прав' })
 }
 
-exports.accessMakeDeskCreator = (req, res, next) => {
+exports.accessMakeDeskOwner = (req, res, next) => {
     if (!req.user.authenticated) {
         return res.status(400).json({ error: 'Для этого действия нужна авторизация' })
     }

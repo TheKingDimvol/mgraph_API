@@ -21,8 +21,8 @@ exports.addAdminRole = (req, res) => {
         })
 }
 
-exports.addDeskCreatorRole = (req, res) => {
-    rightsControl(req.neo4j, req.body.username, 'Desk Creator', true)
+exports.addDeskOwnerRole = (req, res) => {
+    rightsControl(req.neo4j, req.body.username, 'Desk Owner', true)
         .then(response => {
             if (response === 'Успешно') {
                 res.send(response)
@@ -43,8 +43,8 @@ exports.removeAdminRole = (req, res) => {
         })
 }
 
-exports.removeDeskCreatorRole = (req, res) => {
-    rightsControl(req.neo4j, req.body.username, 'Desk Creator', false)
+exports.removeDeskOwnerRole = (req, res) => {
+    rightsControl(req.neo4j, req.body.username, 'Desk Owner', false)
         .then(response => {
             if (response === 'Успешно') {
                 res.send(response)

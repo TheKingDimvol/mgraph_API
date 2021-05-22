@@ -4,7 +4,7 @@ require('dotenv').config()
 
 
 exports.authenticate = async (req, res) => {
-    let cypher = `MATCH (n:User) WHERE n.username="${req.user.username}" RETURN n.uuid AS uuid, n.password AS password`
+    let cypher = `MATCH (n:User) WHERE n.username="${req.user.username}" RETURN n.uuid AS uuid, n.password AS password, n.email AS email`
     const userError = await req.neo4j.read(cypher)
         .then(async response => {
             if (response.records.length != 1) {
@@ -15,6 +15,7 @@ exports.authenticate = async (req, res) => {
             }
 
             req.user.uuid = response.records[0].get('uuid')
+            req.user.email = response.records[0].get('email')
         })
         .catch(error => {
             //console.log(error)
@@ -27,9 +28,10 @@ exports.authenticate = async (req, res) => {
 
     const user = {
         username: req.user.username,
+        email: req.user.email,
         uuid: req.user.uuid
     }
 
     const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
-    res.json({ accessToken })
+    res.json({ accessToken, user })
 }

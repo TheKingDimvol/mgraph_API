@@ -22,7 +22,7 @@ exports.getNode = (req, res) => {
             if (notNodes.includes(node.label)) {
                 res.status(400).json({error: 'Нет вершины с id: ' + req.params.id})
             } else {
-                res.json(node)
+                res.status(200).json(node)
             }
         })
         .catch(e => {
@@ -55,7 +55,7 @@ exports.createNode = async (req, res) => {
 
     if (checkForError) {
         //console.log(checkForError)
-        res.status(400).json({error: checkForError})
+        res.status(500).json({error: checkForError})
         return
     }
 
@@ -80,11 +80,11 @@ exports.createNode = async (req, res) => {
 
     req.neo4j.write(cypher, {'properties': req.body.properties})
         .then(response => {
-            res.status(200).send('Успешно')
+            res.status(201).send('Успешно')
         })
         .catch(error => {
             //console.log(error)
-            res.status(400).json({error: 'Ошибка в добавлении вершины ' + error})
+            res.status(500).json({error: 'Ошибка в добавлении вершины ' + error})
         })
 }
 

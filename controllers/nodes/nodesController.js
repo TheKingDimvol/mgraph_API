@@ -19,8 +19,8 @@ exports.getNodesByDesk = (req, res) => {
 
             res.status(200).json(nodes)
         })
-        .catch(e => {
-            //console.log(e)
-            res.status(400).json({error: 'Что-то не так с запросом'})
+        .catch(error => {
+            //console.log(error.message)
+            res.status(500).json({ error: error.message})
         })
 }

@@ -69,7 +69,7 @@
         }
       }
     },
-    "/api/users/register": {
+    "/api/users/signup": {
       "post": {
         "tags": [],
         "description": "",
@@ -87,9 +87,6 @@
                   "example": "any"
                 },
                 "password": {
-                  "example": "any"
-                },
-                "email\r": {
                   "example": "any"
                 }
               }
@@ -306,21 +303,16 @@
         }
       }
     },
-    "/api/nodes/": {
+    "/api/nodes": {
       "get": {
         "tags": [],
-        "description": "",
+        "description": "Получить все вершины доски по id. \nПример: <b>/api/nodes?desk=0</b>, \nгде desk - id доски(не типологии)",
         "parameters": [
           {
-            "name": "obj",
-            "in": "body",
+            "name": "desk",
+            "in": "query",
             "schema": {
-              "type": "object",
-              "properties": {
-                "desk": {
-                  "example": "any"
-                }
-              }
+              "type": "integer"
             }
           }
         ],
@@ -338,22 +330,29 @@
       },
       "post": {
         "tags": [],
-        "description": "",
+        "description": "Создание вершины",
         "parameters": [
           {
-            "name": "obj",
+            "name": "body",
             "in": "body",
             "schema": {
               "type": "object",
               "properties": {
                 "desk": {
-                  "example": "any"
+                  "type": "integer",
+                  "example": "101"
                 },
-                "type\r": {
-                  "example": "any"
+                "type": {
+                  "type": "integer",
+                  "example": "100"
                 },
                 "properties": {
-                  "example": "any"
+                  "type": "object",
+                  "example": {
+                    "title": "Новая вершина",
+                    "description": "Описание вершины",
+                    "Новое свойство": "Новое значение"
+                  }
                 }
               }
             }
@@ -369,22 +368,23 @@
     "/api/nodes/{id}": {
       "get": {
         "tags": [],
-        "description": "",
+        "description": "Достать вершину по id",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "integer"
           },
           {
-            "name": "obj",
+            "name": "request's body",
             "in": "body",
             "schema": {
               "type": "object",
               "properties": {
                 "desk": {
-                  "example": "any"
+                  "type":"integer",
+                  "example": "100"
                 }
               }
             }
@@ -401,25 +401,29 @@
       },
       "put": {
         "tags": [],
-        "description": "",
+        "description": "Изменить или добавить новые параметры вершины",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "integer"
           },
           {
-            "name": "obj",
+            "name": "request's body",
             "in": "body",
             "schema": {
               "type": "object",
               "properties": {
                 "desk": {
-                  "example": "any"
+                  "type":"integer",
+                  "example": "100"
                 },
                 "properties": {
-                  "example": "any"
+                  "type":"object",
+                  "example": {
+                    "Свойство": "Значение"
+                  }
                 }
               }
             }
@@ -436,7 +440,7 @@
       },
       "delete": {
         "tags": [],
-        "description": "",
+        "description": "Удалить вершину",
         "parameters": [
           {
             "name": "id",
@@ -445,13 +449,14 @@
             "type": "string"
           },
           {
-            "name": "obj",
+            "name": "request's body",
             "in": "body",
             "schema": {
               "type": "object",
               "properties": {
                 "desk": {
-                  "example": "any"
+                  "type":"integer",
+                  "example": "100"
                 }
               }
             }
@@ -467,21 +472,17 @@
         }
       }
     },
-    "/api/types/": {
+    "/api/types": {
       "get": {
         "tags": [],
-        "description": "",
+        "description": "Получить все типы типологии по id. \nПример: <b>/api/types?typology=1</b>, \nгде typology - id типологии",
         "parameters": [
           {
-            "name": "obj",
-            "in": "body",
+            "name": "typology",
+            "in": "query",
             "schema": {
-              "type": "object",
-              "properties": {
-                "desk": {
-                  "example": "any"
-                }
-              }
+              "type": "integer",
+              "example": "100"
             }
           }
         ],
@@ -493,19 +494,23 @@
       },
       "post": {
         "tags": [],
-        "description": "",
+        "description": "Добавить тип",
         "parameters": [
           {
-            "name": "obj",
+            "name": "request's body",
             "in": "body",
             "schema": {
               "type": "object",
               "properties": {
                 "desk": {
-                  "example": "any"
+                  "type":"integer",
+                  "example": "100"
                 },
                 "properties": {
-                  "example": "any"
+                  "type":"object",
+                  "example": {
+                    "Свойство":"Значение"
+                  }
                 }
               }
             }
@@ -524,22 +529,23 @@
     "/api/types/{id}": {
       "get": {
         "tags": [],
-        "description": "",
+        "description": "Получить тип по id",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "integer"
           },
           {
-            "name": "obj",
+            "name": "request's body",
             "in": "body",
             "schema": {
               "type": "object",
               "properties": {
                 "desk": {
-                  "example": "any"
+                  "type":"integer",
+                  "example": "100"
                 }
               }
             }
@@ -553,7 +559,7 @@
       },
       "put": {
         "tags": [],
-        "description": "",
+        "description": "Изменить тип по вершине",
         "parameters": [
           {
             "name": "id",

@@ -1,5 +1,5 @@
 const { deleteUser, getUsers } = require('../../../controllers/Users/usersController');
-const { checkUserInfo, register } = require('../../../controllers/Users/registration');
+const { checkUserInfo, signup } = require('../../../controllers/Users/registration');
 const { accessToDeleteUser, accessGetUsers } = require('../../../middlewares/accessControll');
 const { getRoles } = require('../../../controllers/Users/userRightsByID');
 
@@ -13,7 +13,7 @@ router.get('/:uuid/rights', getRoles)
 router.get('', accessGetUsers, getUsers)
 
 // Регистрация нового пользователя
-router.post('/register', checkUserInfo, register)
+router.post('/signup', checkUserInfo, signup)
 
 // Выдача прав
 router.use('/give-rights', require('./addRights'))
