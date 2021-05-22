@@ -1,9 +1,12 @@
 const express = require('express')
 const config = require('./config')
+const cors = require('cors')
 
 const app = express()
 
 
+// Запросы с того же сервера
+app.use(cors())
 // BodyParser для чистого JSON
 app.use(express.json())
 // BodyParser для Form

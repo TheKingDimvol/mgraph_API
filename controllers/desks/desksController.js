@@ -13,7 +13,7 @@ exports.getListOfDesks = (req, res) => {
     }
     */
 
-    cypher += "RETURN n.title AS title, n.id AS id, n.type AS type"
+    cypher += "RETURN n.title AS title, n.id AS id, n.type AS type ORDER BY type"
 
     req.neo4j.read(cypher)
         .then(desks => {
@@ -24,9 +24,9 @@ exports.getListOfDesks = (req, res) => {
                     id = id.low
                 }
                 const obj = {
-                    'Название' : desk.get('title'),
-                    'id' : id,
-                    'Тип' : desk.get('type')
+                    title : desk.get('title'),
+                    id,
+                    type : desk.get('type')
                     }
                 table.push(obj)
             })

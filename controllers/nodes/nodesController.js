@@ -14,10 +14,10 @@ exports.getNodesByDesk = (req, res) => {
             })
 
             if (nodes.length === 0) {
-                return res.json({ message: 'Доска пустая или доски с данным id не существует' })
+                return res.status(204).json({ message: 'Доска пустая или доски с данным id не существует' })
             }
 
-            res.json(nodes)
+            res.status(200).json(nodes)
         })
         .catch(e => {
             //console.log(e)
