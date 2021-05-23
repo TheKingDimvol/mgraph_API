@@ -2,7 +2,7 @@ const jsonify = require("../../jsonifier")
 
 
 exports.getNodesByDesk = (req, res) => {
-    let cypher = `MATCH (d:Доска) WHERE d.id=${req.query.desk} AND d.type<>"Типология" ` + 
+    let cypher = `MATCH (d:Доска) WHERE d.id=${req.query.desk} ` + 
                  `MATCH (n) WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(d) RETURN n`
 
     req.neo4j.read(cypher)
