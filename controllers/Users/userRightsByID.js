@@ -24,14 +24,14 @@ exports.getRoles = async (req, res) => {
         response = await req.neo4j.read(cypher)
         records = response.records 
 
-        if (records) return res.json(user)
-
         user.desks = []
+
+        if (records.length === 0) return res.json(user)
 
         records.map(record => {
             const role = {
                 role: record.get('relationships(p)')[0].properties.type,
-                deskID: record.get('desk.id').low ? record.get('desk.id').low : record.get('desk.id'),
+                deskID: record.get('desk.id').low !== undefined ? record.get('desk.id').low : record.get('desk.id'),
                 deskTitle: record.get('desk.title')
             }
             user.desks.push(role)
@@ -40,6 +40,6 @@ exports.getRoles = async (req, res) => {
         res.send(user)  
     } catch (error) {
         console.log(error)
-        res.status(400).json({ error })
+        res.status(500).json({ error })
     }
 }

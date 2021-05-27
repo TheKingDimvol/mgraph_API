@@ -76,11 +76,14 @@ exports.createNode = async (req, res) => {
     cypher += `SET node+=$properties `
 
     // Создаём связь вершины и доски
-    cypher += `CREATE (desk)-[:subsection {type:"СОДЕРЖИТ"}]->(node)`
+    cypher += `CREATE (desk)-[:subsection {type:"СОДЕРЖИТ"}]->(node) `
+
+    cypher += `RETURN node`
 
     req.neo4j.write(cypher, {'properties': req.body.properties})
         .then(response => {
-            res.status(201).send('Успешно')
+            let node = jsonify(response.records[0].get('node'))
+            res.status(201).json(node)
         })
         .catch(error => {
             //console.log(error)
@@ -92,9 +95,13 @@ exports.createNode = async (req, res) => {
 // Она не может удалять существующие
 exports.changeNode = (req, res) => {
     // Нужна ли проверка на существование вершины???
-    req.neo4j.write(`MATCH (n) WHERE n.id=${req.params.id} SET n+=$properties`, {'properties': req.body.properties})
+    req.neo4j.write(`MATCH (n) WHERE n.id=${req.params.id} SET n+=$properties RETURN n`, {'properties': req.body.properties})
         .then(response => {
-            res.status(200).send('Успешно')
+            console.log(response.records);
+            if (response.records.length === 0) return res.status(400).json({ error: 'Нет вершины с данным id'})
+
+            let node = response.records[0].get('n')
+            res.status(201).json(jsonify(node))
         })
         .catch(e => {
             //console.log(e)

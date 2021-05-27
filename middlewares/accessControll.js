@@ -7,9 +7,9 @@ exports.workWithGraph = (req, res, next) => {
         return res.status(400).json({ error: 'Для этого действия нужна авторизация' })
     }
 
-    if (req.body.desk == undefined) return res.status(400).json({ error: 'Укажите id доски в теле запроса' })
+    if (req.body.desk === undefined) return res.status(400).json({ error: 'Укажите id доски в теле запроса' })
 
-    if (req.user.desksEdit.includes(req.body.desk) || req.user.roles.includes('Super')) {
+    if (req.user.roles.includes('Super') || req.user.desksEdit.includes(req.body.desk)) {
         return next()
     } 
 

@@ -10,14 +10,22 @@ router.get('/', validateGetAllEdges, (req, res) => {
     // return r AS edge  -  возвращаем ребро 'r' как edge
     let cypher = `MATCH (n)-[r]->(m) `
     cypher += `WHERE (n)<-[:subsection {type:"СОДЕРЖИТ"}]-(:Доска {id:${req.query.desk}}) `
-    cypher += `RETURN r AS edge`
+    cypher += `RETURN r AS edge, n.id AS start, m.id AS end`
 
     req.neo4j.read(cypher)
         .then(result => {
             let edges = []
             result.records.map(record => {
                 let edge = jsonify(record.get('edge'), false)
-                if (edge) edges.push(edge)
+
+                if (!edge) return
+
+                const start = record.get('start')
+                const end = record.get('end')
+                edge.start = start.low !== undefined ? start.low : start
+                edge.end = end.low !== undefined ? end.low : end
+
+                edges.push(edge)
             })
             res.json(edges)
         })
